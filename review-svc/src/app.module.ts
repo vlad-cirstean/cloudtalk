@@ -3,6 +3,8 @@ import { ReviewModule } from './review/review.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import configuration from '../config/configuration';
 import { ClientsModule, KafkaOptions, Transport } from '@nestjs/microservices';
+import { HealthModule } from './health/health.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
   imports: [
@@ -31,6 +33,23 @@ import { ClientsModule, KafkaOptions, Transport } from '@nestjs/microservices';
         inject: [ConfigService],
       },
     ]),
+    TypeOrmModule.forRootAsync({
+      name: '',
+      useFactory: (configService: ConfigService) => {
+        return {
+          type: 'mysql',
+          host: configService.get('mysql.host'),
+          port: configService.get('mysql.port'),
+          username: configService.get('mysql.user'),
+          password: configService.get('mysql.pass'),
+          database: configService.get('mysql.db'),
+          entities: [],
+          synchronize: true,
+        };
+      },
+      inject: [ConfigService],
+    }),
+    HealthModule,
   ],
   controllers: [],
   providers: [],
