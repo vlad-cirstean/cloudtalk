@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ReviewModule } from './review/review.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import configuration from '../config/configuration';
+import configuration from './config/configuration';
 import { ClientsModule, KafkaOptions, Transport } from '@nestjs/microservices';
 import { HealthModule } from './health/health.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
