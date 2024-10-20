@@ -33,7 +33,6 @@ export default (): Configuration => ({
     },
     consumer: {
       groupId: process.env.KAFKA_CONSUMER_GROUP_ID,
-      maxInFlightRequests: 100,
     },
     producer: {
       createPartitioner: Partitioners.LegacyPartitioner,

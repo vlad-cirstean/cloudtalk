@@ -3,7 +3,7 @@ import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
 import { ValidationPipe } from '@nestjs/common';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
-import {DocumentBuilder, SwaggerModule} from '@nestjs/swagger';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -28,10 +28,10 @@ async function bootstrap() {
   );
 
   const config = new DocumentBuilder()
-      .setTitle('Product API')
-      .setDescription('Service for managing products and reviews')
-      .setVersion('1.0')
-      .build();
+    .setTitle('Product API')
+    .setDescription('Service for managing products and reviews')
+    .setVersion('1.0')
+    .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, documentFactory);
 

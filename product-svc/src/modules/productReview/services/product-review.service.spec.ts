@@ -4,8 +4,10 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Product, ProductReview } from '../../../entities';
 import { createMock } from '@golevelup/ts-jest';
-import {ClientKafka} from "@nestjs/microservices";
-import {MESSAGE_QUEUE_INJECTION_TOKEN} from "../../../utils/constants";
+import { ClientKafka } from '@nestjs/microservices';
+import { MESSAGE_QUEUE_INJECTION_TOKEN } from '../../../utils/constants';
+import { Cache } from 'cache-manager';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
 
 describe('ProductReviewService', () => {
   let service: ProductReviewService;
@@ -25,6 +27,10 @@ describe('ProductReviewService', () => {
         {
           provide: MESSAGE_QUEUE_INJECTION_TOKEN,
           useValue: createMock<ClientKafka>(),
+        },
+        {
+          provide: CACHE_MANAGER,
+          useValue: createMock<Cache>(),
         },
       ],
     })

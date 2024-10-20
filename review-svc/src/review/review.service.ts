@@ -13,6 +13,7 @@ import {
   MESSAGE_QUEUE_INJECTION_TOKEN,
 } from '../utils/constants';
 import { firstValueFrom } from 'rxjs';
+import {instanceToPlain} from "class-transformer";
 
 @Injectable()
 export class ReviewService {
@@ -143,10 +144,12 @@ export class ReviewService {
     productRatingEventDto.productId = productId;
     productRatingEventDto.rating = parseFloat(averageRating.toFixed(2));
 
+    const plainObj = instanceToPlain(productRatingEventDto);
+
     await firstValueFrom(
       this.messageQueue.emit(KAFKA_PRODUCT_RATING_TOPIC, {
         key: productId,
-        value: JSON.stringify(productRatingEventDto),
+        value: JSON.stringify(plainObj),
       }),
     );
   }

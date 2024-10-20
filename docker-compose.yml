@@ -20,7 +20,7 @@ services:
     container_name: redis
     image: bitnami/redis:7.4
     environment:
-      REDIS_PASSWORD: pass
+      ALLOW_EMPTY_PASSWORD: yes
     ports:
       - 6379:6379
 

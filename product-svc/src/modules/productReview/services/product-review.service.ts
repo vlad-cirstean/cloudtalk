@@ -12,7 +12,11 @@ import { firstValueFrom } from 'rxjs';
 import {
   KAFKA_PRODUCT_REVIEW_TOPIC,
   MESSAGE_QUEUE_INJECTION_TOKEN,
+  REDIS_PRODUCT_REVIEW_KEY,
 } from '../../../utils/constants';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
+import { instanceToPlain, plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class ProductReviewService implements OnApplicationBootstrap {
@@ -23,13 +27,18 @@ export class ProductReviewService implements OnApplicationBootstrap {
     private readonly productReviewRepo: Repository<ProductReview>,
     @Inject(MESSAGE_QUEUE_INJECTION_TOKEN)
     private readonly messageQueue: ClientKafka,
+    @Inject(CACHE_MANAGER)
+    private readonly cacheManager: Cache,
   ) {}
 
   async onApplicationBootstrap() {
     await this.messageQueue.connect();
   }
 
-  async create(productId: string, createReviewDto: CreateProductReviewDto) {
+  async create(
+    productId: string,
+    createReviewDto: CreateProductReviewDto,
+  ): Promise<ProductReview> {
     const product = await this.productRepo.findOneBy({ id: productId });
     const productReview = new ProductReview();
     productReview.firstName = createReviewDto.firstName;
@@ -51,7 +60,7 @@ export class ProductReviewService implements OnApplicationBootstrap {
     return storedProductReview;
   }
 
-  findAllByProductId(productId: string) {
+  findAllByProductId(productId: string): Promise<ProductReview[]> {
     return this.productReviewRepo.find({
       where: {
         product: { id: productId },
@@ -59,15 +68,25 @@ export class ProductReviewService implements OnApplicationBootstrap {
     });
   }
 
-  findOne(reviewId: string) {
-    return this.productReviewRepo.findOneBy({ id: reviewId });
+  async findOne(reviewId: string): Promise<ProductReview> {
+    const reviewFromCache = await this.getProductReviewFromCache(reviewId);
+
+    if (reviewFromCache) {
+      return reviewFromCache;
+    } else {
+      const review = await this.productReviewRepo.findOneBy({ id: reviewId });
+
+      // responding without waiting for the cache write
+      this.updateProductReviewInCache(review);
+      return review;
+    }
   }
 
   async update(
     productId: string,
     reviewId: string,
     updateReviewDto: UpdateProductReviewDto,
-  ) {
+  ): Promise<ProductReview> {
     const productReview = await this.productReviewRepo.findOneBy({
       id: reviewId,
     });
@@ -89,10 +108,12 @@ export class ProductReviewService implements OnApplicationBootstrap {
       oldRating,
     );
 
+    await this.updateProductReviewInCache(updatedProductReview);
+
     return updatedProductReview;
   }
 
-  async remove(productId: string, reviewId: string) {
+  async remove(productId: string, reviewId: string): Promise<boolean> {
     const productReview = await this.productReviewRepo.findOneBy({
       id: reviewId,
     });
@@ -103,6 +124,8 @@ export class ProductReviewService implements OnApplicationBootstrap {
       ProductReviewEventType.delete,
       productReview.rating,
     );
+
+    await this.deleteProductReviewFromCache(reviewId);
 
     return true;
   }
@@ -121,11 +144,39 @@ export class ProductReviewService implements OnApplicationBootstrap {
       productReviewEventDto.oldRating = oldRating;
     }
 
+    const plainObj = instanceToPlain(productReviewEventDto);
+
     await firstValueFrom(
       this.messageQueue.emit(KAFKA_PRODUCT_REVIEW_TOPIC, {
         key: productId,
-        value: JSON.stringify(productReviewEventDto),
+        value: JSON.stringify(plainObj),
       }),
     );
+  }
+
+  private async getProductReviewFromCache(
+    productReviewId: string,
+  ): Promise<ProductReview | null> {
+    const reviewFromCache = (await this.cacheManager.get(
+      REDIS_PRODUCT_REVIEW_KEY + productReviewId,
+    )) as unknown as string;
+    if (reviewFromCache) {
+      const parsedReviewFromCache = JSON.parse(reviewFromCache);
+      return plainToInstance(ProductReview, parsedReviewFromCache);
+    } else {
+      return null;
+    }
+  }
+
+  private async updateProductReviewInCache(productReview: ProductReview) {
+    const plainObj = instanceToPlain(productReview);
+    await this.cacheManager.set(
+      REDIS_PRODUCT_REVIEW_KEY + productReview.id,
+      JSON.stringify(plainObj),
+    );
+  }
+
+  private async deleteProductReviewFromCache(productReviewId: string) {
+    await this.cacheManager.del(REDIS_PRODUCT_REVIEW_KEY + productReviewId);
   }
 }

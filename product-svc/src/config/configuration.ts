@@ -4,12 +4,14 @@ import {
 } from '@nestjs/microservices/interfaces/microservice-configuration.interface';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm/dist/interfaces/typeorm-options.interface';
 import { Partitioners } from 'kafkajs';
+import type { RedisClientOptions } from 'redis';
 
 type Configuration = {
   env: 'development' | 'production';
   tcp: TcpOptions['options'];
   mysql: TypeOrmModuleOptions;
   kafka: KafkaOptions['options'];
+  redis: RedisClientOptions;
 };
 export default (): Configuration => ({
   env: process.env.NODE_ENV === 'development' ? 'development' : 'production',
@@ -36,6 +38,12 @@ export default (): Configuration => ({
     },
     producer: {
       createPartitioner: Partitioners.LegacyPartitioner,
+    },
+  },
+  redis: {
+    socket: {
+      host: process.env.REDIS_HOST,
+      port: parseInt(process.env.REDIS_PORT, 10) || 6379,
     },
   },
 });
