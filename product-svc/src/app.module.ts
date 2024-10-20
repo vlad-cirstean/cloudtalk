@@ -1,19 +1,14 @@
 import { Module } from '@nestjs/common';
 import { ProductModule } from './modules/product/product.module';
 import { ProductReviewModule } from './modules/productReview/product-review.module';
-import { ConfigModule } from '@nestjs/config';
-import configuration from './config/configuration';
 import { HealthModule } from './modules/health/health.module';
-import { DatabaseModule, KafkaModule } from './resources';
+import { AppConfigModule, DatabaseModule, MessageQueueModule } from './modules/core';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      load: [configuration],
-      isGlobal: true,
-    }),
+    AppConfigModule,
     DatabaseModule,
-    KafkaModule,
+    MessageQueueModule,
     ProductModule,
     ProductReviewModule,
     HealthModule,

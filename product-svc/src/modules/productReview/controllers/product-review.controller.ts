@@ -34,14 +34,22 @@ export class ProductReviewController {
 
   @Patch(':reviewId')
   update(
+    @Param('productId') productId: string,
     @Param('reviewId') reviewId: string,
     @Body() updateReviewDto: UpdateProductReviewDto,
   ) {
-    return this.productReviewService.update(reviewId, updateReviewDto);
+    return this.productReviewService.update(
+      productId,
+      reviewId,
+      updateReviewDto,
+    );
   }
 
   @Delete(':reviewId')
-  remove(@Param('reviewId') reviewId: string) {
-    return this.productReviewService.remove(reviewId);
+  remove(
+    @Param('productId') productId: string,
+    @Param('reviewId') reviewId: string,
+  ) {
+    return this.productReviewService.remove(productId, reviewId);
   }
 }

@@ -1,21 +1,15 @@
 import { Controller } from '@nestjs/common';
-import { MessagePattern, Payload } from '@nestjs/microservices';
+import { EventPattern, Payload } from '@nestjs/microservices';
 import { ReviewService } from './review.service';
-import { ReviewDto } from './dto/review.dto';
+import { ProductReviewEventDto } from './dto/product-review-event.dto';
+import { KAFKA_PRODUCT_REVIEW_TOPIC } from '../utils/constants';
 
 @Controller()
 export class ReviewController {
   constructor(private readonly reviewService: ReviewService) {}
 
-  @MessagePattern('review')
-  processReview(@Payload() review: ReviewDto) {
-    switch (review.action) {
-      case 'create':
-        return this.reviewService.create(review);
-      case 'update':
-        return this.reviewService.update(review.id, review);
-      case 'delete':
-        return this.reviewService.remove(review.id);
-    }
+  @EventPattern(KAFKA_PRODUCT_REVIEW_TOPIC)
+  processReview(@Payload() review: ProductReviewEventDto) {
+    return this.reviewService.processReview(review);
   }
 }

@@ -18,6 +18,13 @@ export class Product extends Base {
   })
   price: number;
 
+  @Column('decimal', {
+    precision: 2,
+    scale: 1,
+    transformer: new DecimalTransformer(),
+  })
+  averageRating: number;
+
   @OneToMany(() => ProductReview, (review) => review.product)
   reviews: ProductReview[];
 }

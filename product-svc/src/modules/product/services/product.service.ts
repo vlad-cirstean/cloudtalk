@@ -3,6 +3,7 @@ import { CreateProductDto, UpdateProductDto } from '../../../dtos';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Product } from '../../../entities';
+import { ProductRatingEventDto } from '../../../dtos/product-rating-event.dto';
 
 @Injectable()
 export class ProductService {
@@ -16,6 +17,7 @@ export class ProductService {
     newProduct.name = createProductDto.name;
     newProduct.description = createProductDto.description;
     newProduct.price = createProductDto.price;
+    newProduct.averageRating = 0;
 
     return this.productRepo.save(newProduct);
   }
@@ -45,5 +47,14 @@ export class ProductService {
 
   async remove(productId: string) {
     return this.productRepo.delete({ id: productId });
+  }
+
+  async updateRating(productRatingEventDto: ProductRatingEventDto) {
+    const product = await this.productRepo.findOneBy({
+      id: productRatingEventDto.productId,
+    });
+    product.averageRating = productRatingEventDto.rating;
+
+    await this.productRepo.save(product);
   }
 }
