@@ -27,6 +27,9 @@ async function bootstrap() {
   );
 
   await app.startAllMicroservices();
-  await app.listen(configService.get('tcp.port'));
+  await app.listen(
+    configService.get('tcp.port'),
+    configService.get('tcp.host'),
+  );
 }
 bootstrap();

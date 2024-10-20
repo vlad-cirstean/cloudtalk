@@ -36,6 +36,9 @@ async function bootstrap() {
   SwaggerModule.setup('api', app, documentFactory);
 
   await app.startAllMicroservices();
-  await app.listen(configService.get('tcp.port'));
+  await app.listen(
+    configService.get('tcp.port'),
+    configService.get('tcp.host'),
+  );
 }
 bootstrap();

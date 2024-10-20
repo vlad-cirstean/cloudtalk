@@ -3,12 +3,12 @@ name: local
 networks:
   cloudtalk:
     driver: bridge
-volumes:
-  redpanda: null
 services:
   mysql:
     container_name: mysql
     image: bitnami/mysql:8.0
+    networks:
+      - cloudtalk
     environment:
       MYSQL_ROOT_USER: root
       MYSQL_ROOT_PASSWORD: pass
@@ -19,6 +19,8 @@ services:
   redis:
     container_name: redis
     image: bitnami/redis:7.4
+    networks:
+      - cloudtalk
     environment:
       ALLOW_EMPTY_PASSWORD: yes
     ports:
@@ -40,3 +42,38 @@ services:
       - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=true
     ports:
       - 9092:9092
+
+  product_service:
+    container_name: product_service
+    build: ./product-svc
+    networks:
+      - cloudtalk
+    environment:
+      PORT: 3000
+      KAFKA_BROKERS: kafka:9094
+      KAFKA_CLIENT_ID: product-service
+      KAFKA_CONSUMER_GROUP_ID: product-service
+      MYSQL_HOST: mysql
+      MYSQL_USER: root
+      MYSQL_PASS: pass
+      MYSQL_DB: cloudtalk
+      REDIS_HOST: redis
+    ports:
+      - 3000:3000
+
+  review_service:
+    container_name: review_service
+    build: ./review-svc
+    networks:
+      - cloudtalk
+    environment:
+      PORT: 3001
+      KAFKA_BROKERS: kafka:9094
+      KAFKA_CLIENT_ID: review-service
+      KAFKA_CONSUMER_GROUP_ID: review-service
+      MYSQL_HOST: mysql
+      MYSQL_USER: root
+      MYSQL_PASS: pass
+      MYSQL_DB: cloudtalk
+    ports:
+      - 3001:3001
