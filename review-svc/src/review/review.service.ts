@@ -13,7 +13,7 @@ import {
   MESSAGE_QUEUE_INJECTION_TOKEN,
 } from '../utils/constants';
 import { firstValueFrom } from 'rxjs';
-import {instanceToPlain} from "class-transformer";
+import { instanceToPlain } from 'class-transformer';
 
 @Injectable()
 export class ReviewService {
