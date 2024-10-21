@@ -1,8 +1,8 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
-import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { ValidationPipe } from '@nestjs/common';
+import { KafkaCustomTransport } from './core/kafka-custom-transport';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -10,7 +10,7 @@ async function bootstrap() {
   const configService = app.get<ConfigService>(ConfigService);
 
   app.connectMicroservice({
-    transport: Transport.KAFKA,
+    strategy: new KafkaCustomTransport(configService.get('kafka')),
     options: configService.get('kafka'),
   });
 

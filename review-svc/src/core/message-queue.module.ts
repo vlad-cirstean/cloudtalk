@@ -15,7 +15,6 @@ import { MESSAGE_QUEUE_INJECTION_TOKEN } from '../utils/constants';
           transport: Transport.KAFKA,
           options: {
             ...configService.get('kafka'),
-            producerOnlyMode: true,
           },
         }),
       },

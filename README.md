@@ -25,7 +25,7 @@ But there are also some disadvantages:
 - added complexity
 
 WIP:
-- [ ] Force Nest controller to consume batches of messages from Kafka
+- [x] Force Nest controller to consume batches of messages from Kafka
 - [ ] Add caching for products
 - [ ] Add pagination
 - [ ] Add logs
