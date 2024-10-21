@@ -1,8 +1,8 @@
-version: "3.7"
 name: local
 networks:
   cloudtalk:
     driver: bridge
+    enable_ipv6: false
 services:
   mysql:
     container_name: mysql
@@ -49,6 +49,7 @@ services:
     networks:
       - cloudtalk
     environment:
+      NODE_ENV: development
       PORT: 3000
       KAFKA_BROKERS: kafka:9094
       KAFKA_CLIENT_ID: product-service
@@ -67,6 +68,7 @@ services:
     networks:
       - cloudtalk
     environment:
+      NODE_ENV: development
       PORT: 3001
       KAFKA_BROKERS: kafka:9094
       KAFKA_CLIENT_ID: review-service

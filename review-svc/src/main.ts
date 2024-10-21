@@ -9,11 +9,6 @@ async function bootstrap() {
 
   const configService = app.get<ConfigService>(ConfigService);
 
-  app.connectMicroservice<MicroserviceOptions>({
-    transport: Transport.TCP,
-    options: configService.get('tcp'),
-  });
-
   app.connectMicroservice({
     transport: Transport.KAFKA,
     options: configService.get('kafka'),
@@ -29,6 +24,7 @@ async function bootstrap() {
   await app.startAllMicroservices();
   await app.listen(
     configService.get('tcp.port'),
+    configService.get('tcp.host'),
   );
 }
 bootstrap();

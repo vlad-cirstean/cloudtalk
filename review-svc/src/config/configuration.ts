@@ -15,6 +15,7 @@ export default (): Configuration => ({
   env: process.env.NODE_ENV === 'development' ? 'development' : 'production',
   tcp: {
     port: parseInt(process.env.PORT, 10) || 3001,
+    host: process.env.HOST || '0.0.0.0',
   },
   mysql: {
     type: 'mysql',
