@@ -26,7 +26,7 @@ But there are also some disadvantages:
 
 WIP:
 - [ ] Force Nest controller to consume batches of messages from Kafka
-- [ ] Move the average rating from the product table into its own table and use caching
+- [ ] Add caching for products
 - [ ] Add pagination
 - [ ] Add logs
 - [ ] Add unit/integration tests
