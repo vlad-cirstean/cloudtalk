@@ -63,10 +63,12 @@ services:
       - 3000:3000
 
   review_service:
-    container_name: review_service
     build: ./review-svc
     networks:
       - cloudtalk
+    deploy:
+      mode: replicated
+      replicas: 2
     environment:
       NODE_ENV: development
       PORT: 3001
@@ -77,5 +79,3 @@ services:
       MYSQL_USER: root
       MYSQL_PASS: pass
       MYSQL_DB: cloudtalk
-    ports:
-      - 3001:3001
